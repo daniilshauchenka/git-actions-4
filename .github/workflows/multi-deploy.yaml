@@ -1,17 +1,17 @@
 name: multi-deployment
 
-on: 
+on:
   push:
     branches:
       - main
-      - test
       - dev
+      - test
 
 permissions:
   contents: read
   pages: write
   id-token: write
-  
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -26,22 +26,25 @@ jobs:
             environment: test
 
     environment:
-      name: ${{matrix.environment}}
-      url: ${{steps.deployment.outputs.page_url}}
+      name: ${{ matrix.environment }}
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v4
 
-    - uses: actions/configure-pages@v4
+      - name: Show environment
+        run: echo "Deploying branch '${{ github.ref_name }}' to '${{ matrix.environment }}'"
 
-    - name: Show current environment
-      run: echo "deploying branch '${{matrix.branch}}' to '${{matrix.environment}}'"
+      - name: inject environment name to index.html
+        run: |
+          sed -i "s|\${ENVIRONMENT}|${{ matrix.environment }}|g" project/index.html
 
-    - name: upload files
-      if: github.ref_name == matrix.branch
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: ./project
+      - name: Upload files
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./project
 
-    - id: deployment
-      uses: actions/deploy-pages@v4
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
