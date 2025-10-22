@@ -55,6 +55,6 @@ jobs:
 
 
       - name: Deploy to PRODUCTION
-        if: githubref_name=='main'
+        if: github.ref_name=='main'
         uses: actions/deploy-pages@v4
 
