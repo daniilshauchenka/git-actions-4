@@ -39,6 +39,9 @@ jobs:
       - name: inject environment name to index.html
         run: |
           sed -i "s|\${ENVIRONMENT}|${{ matrix.environment }}|g" project/index.html
+      
+      - name: Clean previous artifacts
+        run: rm -rf /home/runner/work/_temp/artifacts || true
 
       - name: Upload files
         uses: actions/upload-pages-artifact@v3
