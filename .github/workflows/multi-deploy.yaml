@@ -1,0 +1,46 @@
+name: multi-deployment
+
+on: 
+  push:
+    branches:
+      - main
+      - test
+      - dev
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - branch: main
+            environment: production
+          - branch: dev
+            environment: development
+          - branch: test
+            environment: test
+
+      if: github.ref_name == matrix.branch
+      environment:
+        name: ${{matrix.environment}}
+        url: ${{steps.deployment.outputs.page_url}}
+
+      steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v4
+
+      - name: Show current environment
+        run: echo "deploying branch '${{matrix.branch}}' to '${{matrix.environment}}'"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./project
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
