@@ -36,25 +36,31 @@ jobs:
       - name: Show environment
         run: echo "Deploying branch '${{ github.ref_name }}' to '${{ matrix.environment }}'"
 
-      - name: inject environment name to index.html
+      - name: Inject environment name to index.html
         run: |
           sed -i "s|\${ENVIRONMENT}|${{ matrix.environment }}|g" project/index.html
-      
-      - name: run tests (only on test)
+  
+      - name: Run tests (only on test)
         if: github.ref_name == 'test'
-        run: echo "Running tests for TEST environment..."
+        run: |
+          echo "Running tests for TEST..."
+          echo "success"
 
-      - name: build preview (only on dev)
+      - name: Build preview (only on dev)
         if: github.ref_name == 'dev'
-        run: echo "building preview version for DEVELOPMENT..."
+        run: |
+          echo "Building preview for DEVELOPMENT..."
+          echo "success"
 
-      - name: Upload files
+      - name: Upload files (only on main)
+        if: github.ref_name == 'main'
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./project
           name: github-pages-${{ github.ref_name }}
-      
+
       - id: deployment
+        if: github.ref_name == 'main'
         uses: actions/deploy-pages@v4
         with:
           artifact_name: github-pages-${{ github.ref_name }}
