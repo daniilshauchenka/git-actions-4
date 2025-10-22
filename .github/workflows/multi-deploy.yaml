@@ -40,14 +40,22 @@ jobs:
         run: |
           sed -i "s|\${ENVIRONMENT}|${{ matrix.environment }}|g" project/index.html
       
-      - name: Clean previous artifacts
-        run: rm -rf /home/runner/work/_temp/artifacts || true
+      - name: run tests (only on test)
+        if: github.ref_name == 'test'
+        run: echo "Running tests for TEST environment..."
+
+      - name: build preview (only on dev)
+        if: github.ref_name == 'dev'
+        run: echo "building preview version for DEVELOPMENT..."
 
       - name: Upload files
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./project
-
+          name: github-pages-${{ github.ref_name }}
+      
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.ref_name }}
 
